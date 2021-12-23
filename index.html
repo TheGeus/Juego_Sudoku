@@ -1,1 +1,166 @@
+<DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <style>
+         table, tr, td{
+         border: 1px solid;
+         }
+         tr{
+         height: 25px;
+         }
+         td{
+         height: 15px;
+         width: 15px;
+         }
+         input{
+         border: none;
+         width: 55px;
+         height: 24px;
+         text-align: center;
+         }
+      </style>
+   </head>
+   <body>
+      <script>
+            const tablero = [[], [], [], [], [], [], [], [], []];
+            const MAX = 9;
+            const excluir = [[], [], [], [], [], [], [], [], []];
+            const excluir2 = [[], [], [], [], [], [], [], [], []];
 
+            function iniciar() {
+                let contador1 = 0;
+                let contador2 = 0;
+                let ultimoFallo = 0;
+
+                for (let i = 0; i < MAX; i++) {
+                    for (let j = 0; j < MAX; j++) {
+                        if (i == 0 && j == 0) {
+                            tablero[i][j] = Math.floor(Math.random() * 9) + 1;
+
+                            excluir[0].push(tablero[i][j]);
+
+                            excluir2[0].push(tablero[i][j]);
+                        } else {
+                            let numeroDefinitivo = null;
+
+                            let distinto = true;
+
+                            do {
+                                let numero = Math.floor(Math.random() * 9) + 1;
+
+                                if (excluir[i].includes(numero) == false && excluir2[j].includes(numero) == false) {
+                                    numeroDefinitivo = numero;
+
+                                    excluir[i].push(numeroDefinitivo);
+
+                                    excluir2[j].push(numeroDefinitivo);
+
+                                    distinto = false;
+
+                                    contador1 = 0;
+
+                                    if (i < ultimoFallo) {
+                                        contador2 = 0;
+                                    }
+                                } else {
+                                    contador1++;
+
+                                    if (contador1 == 50) {
+                                        let cantidad = excluir[i].length;
+
+                                        excluir[i] = [];
+
+                                        for (a = 0; a < cantidad; a++) {
+                                            //console.log(excluir2[a]);
+
+                                            excluir2[a].pop();
+
+                                            //console.log("array 2: posicion: x: " + a + " y: " + i + " valor: " + excluir[a][i]);
+                                        }
+
+                                        contador1 = 0;
+
+                                        j = 0;
+
+                                        contador2++;
+
+                                        ultimoFallo = i;
+
+                                        console.log("eliminado " + contador2 + " veces");
+                                    }
+                                }
+                            } while (distinto);
+
+                            tablero[i][j] = numeroDefinitivo;
+                        }
+                    }
+                }
+                const tableroOcultos = JSON.parse(JSON.stringify(tablero));
+                let contadorNulls = 0;
+                while (contadorNulls < 30) {
+                    let x = Math.floor(Math.random() * 9);
+                    let y = Math.floor(Math.random() * 9);
+                    if (tableroOcultos[x][y] != null) {
+                        tableroOcultos[x][y] = null;
+                        contadorNulls++;
+                    }
+                }
+                let imprimir = "<form name=\"sudoku\"><table><tbody>";
+
+                for (let i = 0; i < MAX; i++) {
+                    imprimir += "<tr>";
+
+                    for (let j = 0; j < MAX; j++) {
+                        imprimir += "<td>";
+                        if (tableroOcultos[i][j] == null) {
+                            imprimir += "<input type=\"number\" min\"1\" max=\"" + MAX + "\" name=\"usuario[" + i + "][" + j + "]\">";
+                        } else {
+                            imprimir += "<input name=\"usuario[" + i + "][" + j + "]\" value=\"" + tableroOcultos[i][j] + "\" disabled>";
+                        }
+                        imprimir += "</td>";
+                    }
+
+                    imprimir += "</tr>";
+                }
+
+                imprimir += "</tbody></table><button type=\"button\" onclick=\"comprobar()\">comprobar</button></form>";
+
+                document.getElementById("datos").innerHTML = imprimir;
+            }
+
+            function comprobar(evento) {
+                let usuario = document.forms["sudoku"];
+                let validacion = document.getElementById("validacion");
+                let errores = 0;
+                let correctas = 0;
+                let datos = "";
+                let contador = 0;
+                validacion.innerHTML = datos;
+                for (let i = 0; i < MAX; i++) {
+                    for (let j = 0; j < MAX; j++) {
+                        if (usuario.elements["usuario[" + i + "][" + j + "]"].value == tablero[i][j]) {
+                            correctas++;
+                        } else {
+                            errores++;
+                        }
+                        contador++;
+                        //console.log('el usuario'+usuario.elements["usuario["+i+"]["+j+"]"].value+'\n'+"El array "+tablero[i][j]);
+                    }
+                }
+                console.log(tablero)
+                if (errores == 0) {
+                    validacion.innerHTML = "felicidades sudoku completado";
+                } else {
+                    validacion.innerHTML = "Que mal! has tenido " + errores + " errores y " + correctas + " correctas";
+                }
+            }
+      </script>
+      <button onclick="iniciar()">Empezar</button>
+      <div id="datos"></div>
+      <p id="validacion"></p>
+   </body>
+</html>
